@@ -17,10 +17,24 @@ import { swaggerSpec } from "./docs/swagger";
 
 export const app = express();
 
+app.set("trust proxy", 1);
+
+const allowedOrigins = env.frontendUrl
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.use(helmet());
 app.use(
   cors({
-    origin: env.frontendUrl,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
     credentials: true
   })
 );

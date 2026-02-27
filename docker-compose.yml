@@ -3,8 +3,6 @@
     image: mongo:7
     container_name: todo-mongo
     restart: unless-stopped
-    ports:
-      - "27017:27017"
     volumes:
       - mongo_data:/data/db
     healthcheck:
@@ -20,8 +18,6 @@
     restart: unless-stopped
     env_file:
       - ./backend/.env
-    ports:
-      - "5000:5000"
     depends_on:
       mongo:
         condition: service_healthy
@@ -33,6 +29,8 @@
     restart: unless-stopped
     env_file:
       - ./frontend/.env
+    environment:
+      - BACKEND_URL=http://backend:5000
     ports:
       - "3000:3000"
     depends_on:

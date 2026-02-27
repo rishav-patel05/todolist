@@ -1,11 +1,13 @@
 ﻿import { Request, Response } from "express";
+import { env } from "../config/env";
 import { asyncHandler } from "../utils/asyncHandler";
 import { loginUser, logoutUser, refreshUserToken, registerUser } from "../services/auth.service";
 
 const cookieOptions = {
   httpOnly: true,
   sameSite: "lax" as const,
-  secure: process.env.NODE_ENV === "production"
+  secure: env.cookieSecure,
+  ...(env.cookieDomain ? { domain: env.cookieDomain } : {})
 };
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
@@ -43,9 +45,9 @@ export const logout = asyncHandler(async (req: Request, res: Response) => {
     await logoutUser(req.user.id);
   }
 
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
-  res.clearCookie("csrfToken");
+  res.clearCookie("accessToken", cookieOptions);
+  res.clearCookie("refreshToken", cookieOptions);
+  res.clearCookie("csrfToken", { ...cookieOptions, httpOnly: false });
 
   res.json({ success: true, message: "Logged out" });
 });

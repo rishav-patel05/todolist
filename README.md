@@ -90,6 +90,7 @@ npm run test --workspace backend
 ## Deployment Notes
 
 - Set strong JWT/CSRF secrets in production.
-- Keep `secure` cookies enabled behind HTTPS.
-- Set `FRONTEND_URL` to exact production UI origin.
+- Frontend should call relative `/api` and proxy to backend via `BACKEND_URL` (for Docker Compose: `http://backend:5000`).
+- Set `FRONTEND_URL` to a comma-separated origin allowlist if needed, or leave empty to allow all origins.
+- Keep `COOKIE_SECURE=true` behind HTTPS. For temporary HTTP-only testing, set `COOKIE_SECURE=false`.
 - Use managed MongoDB and rotate secrets regularly.

@@ -1,5 +1,6 @@
-﻿import crypto from "crypto";
+import crypto from "crypto";
 import { NextFunction, Request, Response } from "express";
+import { env } from "../config/env";
 import { AppError } from "../utils/appError";
 
 const safeMethods = new Set(["GET", "HEAD", "OPTIONS"]);
@@ -11,7 +12,8 @@ export const csrfCookie = (req: Request, res: Response, next: NextFunction): voi
     res.cookie("csrfToken", token, {
       httpOnly: false,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "production"
+      secure: env.cookieSecure,
+      ...(env.cookieDomain ? { domain: env.cookieDomain } : {})
     });
   }
   req.csrfToken = token;
