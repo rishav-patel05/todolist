@@ -4,7 +4,10 @@ const nextConfig = {
     typedRoutes: true
   },
   async rewrites() {
-    const backendUrl = process.env.BACKEND_URL ?? "http://backend:5000";
+    const backendUrl =
+      process.env.NODE_ENV === "production"
+        ? "http://backend:5000"
+        : process.env.BACKEND_URL ?? "http://localhost:5000";
 
     return [
       {

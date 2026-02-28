@@ -1,5 +1,6 @@
-﻿"use client";
+"use client";
 
+import { AxiosError } from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -12,17 +13,31 @@ import { authApi } from "@/lib/api";
 import { useAuthStore } from "@/store/auth-store";
 import { toast } from "sonner";
 
-const schema = z.object({
-  name: z.string().min(2).optional(),
+const passwordRule = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
+
+const registerSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email(),
+  password: z
+    .string()
+    .regex(passwordRule, "Use 8+ chars with uppercase, lowercase, number and symbol")
+});
+
+const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8)
 });
 
-type FormValues = z.infer<typeof schema>;
+interface FormValues {
+  name?: string;
+  email: string;
+  password: string;
+}
 
 export const AuthForm = ({ mode }: { mode: "login" | "register" }): JSX.Element => {
   const router = useRouter();
   const { fetchUser } = useAuthStore();
+  const schema = mode === "register" ? registerSchema : loginSchema;
   const {
     register,
     handleSubmit,
@@ -44,8 +59,12 @@ export const AuthForm = ({ mode }: { mode: "login" | "register" }): JSX.Element 
       await fetchUser();
       toast.success(mode === "register" ? "Welcome aboard" : "Welcome back");
       router.push("/");
-    } catch {
-      toast.error("Authentication failed");
+    } catch (error) {
+      const message =
+        error instanceof AxiosError
+          ? (error.response?.data as { message?: string } | undefined)?.message ?? "Authentication failed"
+          : "Authentication failed";
+      toast.error(message);
     }
   };
 
@@ -67,6 +86,9 @@ export const AuthForm = ({ mode }: { mode: "login" | "register" }): JSX.Element 
           <div>
             <Input placeholder="Password" type="password" aria-label="Password" {...register("password")} />
             {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
+            {mode === "register" && (
+              <p className="mt-1 text-xs text-slate-400">Use uppercase, lowercase, number, symbol, min 8 chars.</p>
+            )}
           </div>
           <Button className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Please wait..." : mode === "register" ? "Register" : "Login"}
