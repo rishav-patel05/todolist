@@ -51,7 +51,12 @@ app.use(mongoSanitize());
 app.use(xss());
 app.use(hpp());
 app.use(csrfCookie);
-app.use(verifyCsrf);
+
+app.use("/api/health", healthRoutes);
+app.use("/api/auth", authRoutes);
+
+// Protect only todos (example)
+app.use("/api/todos", verifyCsrf, todoRoutes);
 
 app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
