@@ -54,13 +54,7 @@ app.use(csrfCookie);
 
 app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
-
-// Protect only todos (example)
 app.use("/api/todos", verifyCsrf, todoRoutes);
-
-app.use("/api/health", healthRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/todos", todoRoutes);
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(notFound);

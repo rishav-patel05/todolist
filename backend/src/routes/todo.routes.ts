@@ -17,8 +17,8 @@ router.use(requireAuth);
 router.get("/stats", getStats);
 router.get("/", validate(listTodoQuerySchema, "query"), getTodos);
 router.post("/", validate(createTodoSchema), createTodoHandler);
+router.patch("/reorder/all", validate(reorderSchema), reorderTodosHandler);
 router.patch("/:id", validate(updateTodoSchema), updateTodoHandler);
 router.delete("/:id", deleteTodoHandler);
-router.patch("/reorder/all", validate(reorderSchema), reorderTodosHandler);
 
 export default router;

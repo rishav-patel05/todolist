@@ -1,6 +1,7 @@
 ﻿services:
   mongo:
     image: mongo:7
+    pull_policy: always
     container_name: todo-mongo
     restart: unless-stopped
     volumes:
@@ -13,6 +14,7 @@
 
   backend:
     image: rishavpatel05/todo-backend:latest
+    pull_policy: always
     container_name: todo-backend
     restart: unless-stopped
     env_file:
@@ -23,6 +25,7 @@
 
   frontend:
     image: rishavpatel05/todo-frontend:latest
+    pull_policy: always
     container_name: todo-frontend
     restart: unless-stopped
     env_file:
