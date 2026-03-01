@@ -12,8 +12,7 @@
       retries: 5
 
   backend:
-    build:
-      context: ./backend
+    image: rishavpatel05/todo-backend:latest
     container_name: todo-backend
     restart: unless-stopped
     env_file:
@@ -23,8 +22,7 @@
         condition: service_healthy
 
   frontend:
-    build:
-      context: ./frontend
+    image: rishavpatel05/todo-frontend:latest
     container_name: todo-frontend
     restart: unless-stopped
     env_file:
