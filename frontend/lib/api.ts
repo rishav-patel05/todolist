@@ -36,17 +36,21 @@ export const todoApi = {
     return res.data.data;
   },
   create: async (payload: Partial<Todo>): Promise<Todo> => {
+    await authApi.csrf();
     const res = await api.post("/todos", payload);
     return res.data.data;
   },
   update: async (id: string, payload: Partial<Todo>): Promise<Todo> => {
+    await authApi.csrf();
     const res = await api.patch(`/todos/${id}`, payload);
     return res.data.data;
   },
   remove: async (id: string): Promise<void> => {
+    await authApi.csrf();
     await api.delete(`/todos/${id}`);
   },
   reorder: async (orderedIds: string[]): Promise<void> => {
+    await authApi.csrf();
     await api.patch("/todos/reorder/all", { orderedIds });
   }
 };

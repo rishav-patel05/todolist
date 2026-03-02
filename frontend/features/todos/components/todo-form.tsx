@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import { AxiosError } from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -42,8 +43,12 @@ export const TodoForm = (): JSX.Element => {
       });
       reset();
       toast.success("Todo added");
-    } catch {
-      toast.error("Could not add todo");
+    } catch (error) {
+      const message =
+        error instanceof AxiosError
+          ? (error.response?.data as { message?: string } | undefined)?.message ?? "Could not add todo"
+          : "Could not add todo";
+      toast.error(message);
     }
   };
 

@@ -63,9 +63,9 @@ export const useTodoStore = create<TodoState>((set, get) => ({
       const saved = await todoApi.create(payload);
       set((state) => ({ items: state.items.map((t) => (t.id === optimistic.id ? saved : t)) }));
       await get().fetchStats();
-    } catch {
+    } catch (error) {
       set((state) => ({ items: state.items.filter((t) => t.id !== optimistic.id) }));
-      throw new Error("Failed to create todo");
+      throw error instanceof Error ? error : new Error("Failed to create todo");
     }
   },
   updateTodo: async (id, payload) => {
@@ -75,9 +75,9 @@ export const useTodoStore = create<TodoState>((set, get) => ({
       const updated = await todoApi.update(id, payload);
       set((state) => ({ items: state.items.map((t) => (t.id === id ? updated : t)) }));
       await get().fetchStats();
-    } catch {
+    } catch (error) {
       set({ items: prev });
-      throw new Error("Failed to update todo");
+      throw error instanceof Error ? error : new Error("Failed to update todo");
     }
   },
   deleteTodo: async (id) => {
@@ -86,9 +86,9 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     try {
       await todoApi.remove(id);
       await get().fetchStats();
-    } catch {
+    } catch (error) {
       set({ items: prev });
-      throw new Error("Failed to delete todo");
+      throw error instanceof Error ? error : new Error("Failed to delete todo");
     }
   },
   reorderTodos: async (orderedIds) => {
@@ -98,9 +98,9 @@ export const useTodoStore = create<TodoState>((set, get) => ({
     set({ items: reordered });
     try {
       await todoApi.reorder(orderedIds);
-    } catch {
+    } catch (error) {
       set({ items: prev });
-      throw new Error("Failed to reorder todos");
+      throw error instanceof Error ? error : new Error("Failed to reorder todos");
     }
   }
 }));
