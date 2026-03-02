@@ -22,8 +22,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-let refreshing = false;
-let pendingQueue: Array<() => void> = [];
+let refreshPromise: Promise<void> | null = null;
 
 api.interceptors.response.use(
   (res) => res,
@@ -31,19 +30,26 @@ api.interceptors.response.use(
     const original = error.config;
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true;
-
-      if (!refreshing) {
-        refreshing = true;
-        try {
-          await api.post("/auth/refresh");
-          pendingQueue.forEach((cb) => cb());
-          pendingQueue = [];
-        } finally {
-          refreshing = false;
-        }
+      if (!refreshPromise) {
+        refreshPromise = api
+          .post("/auth/refresh")
+          .then(() => undefined)
+          .finally(() => {
+            refreshPromise = null;
+          });
       }
+      await refreshPromise;
+      return api(original);
+    }
 
-      await new Promise<void>((resolve) => pendingQueue.push(resolve));
+    if (
+      error.response?.status === 403 &&
+      !original._csrfRetry &&
+      typeof error.response?.data?.message === "string" &&
+      error.response.data.message.toLowerCase().includes("csrf")
+    ) {
+      original._csrfRetry = true;
+      await api.get("/auth/csrf");
       return api(original);
     }
 
